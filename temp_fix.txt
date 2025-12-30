@@ -1,0 +1,9 @@
+// 校验邮箱是否被使用
+        if(!checkMailUser(param.getMail())) {
+            throw new ServiceException(ServiceErrorCodeConstants.MAIL_USED);
+        }
+
+        // 检验手机是否存在
+        if(!checkPhoneNumberUsed(param.getPhoneNumber())) {
+            throw new ServiceException(ServiceErrorCodeConstants.PHONE_USED);
+        }

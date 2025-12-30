@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录 - 抽奖系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+            margin: 0;
+        }
+        .login-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 350px;
+        }
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* Ensures padding doesn't affect width */
+        }
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .links {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .links a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .error-msg {
+            color: red;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>用户登录</h2>
+    <div id="errorMsg" class="error-msg"></div>
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="loginName">账号 (邮箱/手机号)</label>
+            <input type="text" id="loginName" name="loginName" required placeholder="请输入邮箱或手机号">
+        </div>
+        <div class="form-group">
+            <label for="password">密码</label>
+            <input type="password" id="password" name="password" required placeholder="请输入密码">
+        </div>
+        <div class="form-group">
+            <label for="mandatoryIdentity">身份 (选填)</label>
+            <input type="text" id="mandatoryIdentity" name="mandatoryIdentity" placeholder="如: ADMIN / USER">
+        </div>
+        <button type="submit" class="btn">登录</button>
+    </form>
+    <div class="links">
+        <a href="register.html">没有账号？立即注册</a>
+    </div>
+</div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const loginName = document.getElementById('loginName').value;
+        const password = document.getElementById('password').value;
+        const mandatoryIdentity = document.getElementById('mandatoryIdentity').value;
+        const errorMsg = document.getElementById('errorMsg');
+
+        // 构建请求体
+        const data = {
+            loginName: loginName,
+            password: password,
+            mandatoryIdentity: mandatoryIdentity || null
+        };
+
+        fetch('/password/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.code === 0 || result.code === 200) { // 假设0或200为成功
+                // 登录成功
+                localStorage.setItem('token', result.data.token);
+                localStorage.setItem('identity', result.data.identity);
+                alert('登录成功！Token已保存');
+                // 这里可以跳转到主页，例如 window.location.href = 'index.html';
+            } else {
+                // 登录失败
+                errorMsg.textContent = result.message || '登录失败';
+                errorMsg.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            errorMsg.textContent = '网络错误，请稍后重试';
+            errorMsg.style.display = 'block';
+        });
+    });
+</script>
+
+</body>
+</html>
