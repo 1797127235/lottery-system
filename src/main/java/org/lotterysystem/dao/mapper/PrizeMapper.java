@@ -26,4 +26,24 @@ public interface PrizeMapper {
             @Result(column = "gmt_modified", property = "gmtModified")
     })
     List<PrizeDO> selectPrizeList(@Param("offset") int offset, @Param("pageSize") int pageSize);
+
+    @Select({
+            "<script>",
+            "SELECT id, name, description, price, image_url FROM prize WHERE id IN",
+            "<foreach collection='list' item='id' open='(' separator=',' close=')'>",
+            "#{id}",
+            "</foreach>",
+            "</script>"
+    })
+    @Results(id = "prizeResultMapFull", value = {
+            @Result(column = "id", property = "id", id = true),
+            @Result(column = "name", property = "name"),
+            @Result(column = "description", property = "description"),
+            @Result(column = "price", property = "price"),
+            @Result(column = "image_url", property = "imageUrl")
+    })
+    List<PrizeDO> selectByIds(@Param("list") List<Long> prizeIds);
+
+    @Select("")
+    List<Long> selectExistByids(@Param("list")List<Long> prizeids);
 }

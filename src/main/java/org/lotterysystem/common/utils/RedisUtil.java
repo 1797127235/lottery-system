@@ -4,7 +4,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +21,7 @@ public class RedisUtil {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    public boolean set(String key, String value) {
+    public boolean set(String key, String value, int i, TimeUnit minutes) {
         try {
             stringRedisTemplate.opsForValue().set(key,value);
             return true;

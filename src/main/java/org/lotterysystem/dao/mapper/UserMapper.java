@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.*;
 import org.lotterysystem.dao.dataobject.Encrypt;
 import org.lotterysystem.dao.dataobject.UserDo;
 
+import java.util.List;
+
 @Mapper
 public interface UserMapper {
     // 获取邮箱绑定人数
@@ -30,4 +32,21 @@ public interface UserMapper {
     @Select("select * from \"user\" where identity = #{identity}")
     java.util.List<UserDo> selectByIdentity(@Param("identity") String identity);
 
+    @Select({
+            "<script>",
+            "select id from \"user\"",
+            "<where>",
+            "  <if test=\"list != null and list.size() &gt; 0\">",
+            "    id in",
+            "    <foreach collection=\"list\" item=\"id\" open=\"(\" separator=\",\" close=\")\">",
+            "      #{id}",
+            "    </foreach>",
+            "  </if>",
+            "  <if test=\"list == null or list.size() == 0\">",
+            "    and 1 = 0",
+            "  </if>",
+            "</where>",
+            "</script>"
+    })
+    List<Long> selectExistByids(@Param("list") List<Long> ids);
 }

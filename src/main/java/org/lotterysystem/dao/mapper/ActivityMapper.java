@@ -13,4 +13,5 @@ public interface ActivityMapper {
     @Options(useGeneratedKeys = true, keyProperty = "a.id", keyColumn = "id")
     int insert(@Param("a") ActivityDO activityDO);
 
+
 }
