@@ -44,6 +44,21 @@ public interface PrizeMapper {
     })
     List<PrizeDO> selectByIds(@Param("list") List<Long> prizeIds);
 
-    @Select("")
-    List<Long> selectExistByids(@Param("list")List<Long> prizeids);
+    @Select({
+            "<script>",
+            "select id from prize",
+            "<where>",
+            "  <if test=\"list != null and list.size() &gt; 0\">",
+            "    id in",
+            "    <foreach collection=\"list\" item=\"id\" open=\"(\" separator=\",\" close=\")\">",
+            "      #{id}",
+            "    </foreach>",
+            "  </if>",
+            "  <if test=\"list == null or list.size() == 0\">",
+            "    and 1 = 0",
+            "  </if>",
+            "</where>",
+            "</script>"
+    })
+    List<Long> selectExistByids(@Param("list") List<Long> prizeids);
 }

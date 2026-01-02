@@ -9,14 +9,17 @@ import org.lotterysystem.common.utils.RedisUtil;
 import org.lotterysystem.controller.param.CreateActivityParam;
 import org.lotterysystem.controller.param.CreatePrizeByActivityParam;
 import org.lotterysystem.controller.param.CreateUserByActivityParam;
+import org.lotterysystem.controller.param.PageParam;
 import org.lotterysystem.dao.dataobject.ActivityDO;
 import org.lotterysystem.dao.dataobject.ActivityPrizeDO;
 import org.lotterysystem.dao.dataobject.ActivityUserDO;
 import org.lotterysystem.dao.dataobject.PrizeDO;
 import org.lotterysystem.dao.mapper.*;
 import org.lotterysystem.service.ActivityService;
+import org.lotterysystem.service.dto.ActivityDTO;
 import org.lotterysystem.service.dto.ActivityDetailDTO;
 import org.lotterysystem.service.dto.CreateActivityDTO;
+import org.lotterysystem.service.dto.PageListDTO;
 import org.lotterysystem.service.enums.ActivityPrizeStatusEnum;
 import org.lotterysystem.service.enums.ActivityPrizeTiersEnum;
 import org.lotterysystem.service.enums.ActivityStatusEnum;
@@ -110,6 +113,57 @@ public class ActivityServiceImpl implements ActivityService {
         cacheActivity(activityDetailDTO);
 
         return new CreateActivityDTO(activityDO.getId());
+    }
+
+    @Override
+    public PageListDTO<ActivityDTO> findActivityList(PageParam pageParam) {
+        // 获取总量
+        int total = activityMapper.count();
+
+        // 获取当前页列表
+        List<ActivityDO> activityDOList = activityMapper.selectActivityList(pageParam.offset(),pageParam.getPageSize());
+
+        List<ActivityDTO> activityDTOList = activityDOList.stream()
+                .map(activityDO -> {
+                    ActivityDTO activityDTO = new ActivityDTO();
+                    activityDTO.setActivityId(activityDO.getId());
+                    activityDTO.setActivityName(activityDO.getActivityName());
+                    activityDTO.setDescription(activityDO.getDescription());
+                    activityDTO.setStatus(ActivityStatusEnum.forName(activityDO.getStatus()));
+                    return activityDTO;
+                }).collect(Collectors.toList());
+
+        return new PageListDTO<>(total, activityDTOList);
+    }
+
+    @Override
+    public ActivityDetailDTO getActivityDetail(Long activityId) {
+        if(null == activityId){
+            log.error("activityId is null");
+            return null;
+        }
+        // 查redis
+        ActivityDetailDTO activityDetailDTO = getActivityDetailDTO(activityId);
+        if (activityDetailDTO != null) {
+            return activityDetailDTO;
+        }
+
+        // redis不存在，查表
+        ActivityDO activityDO = activityMapper.selectById(activityId);
+        if (activityDO == null) {
+            log.warn("activity not found, id={}", activityId);
+            return null;
+        }
+
+        List<ActivityPrizeDO> activityPrizeDOList = activityPrizeMapper.selectByActivityId(activityId);
+        List<ActivityUserDO> activityUserDOList = activityUserMapper.selectByActivityId(activityId);
+
+        ActivityDetailDTO detailDTO = convertToActivityDetailDTO(activityDO, activityPrizeDOList, activityUserDOList);
+
+        // 缓存
+        cacheActivity(detailDTO);
+
+        return detailDTO;
     }
 
     private ActivityDetailDTO convertToActivityDetailDTO(ActivityDO activityDO,
