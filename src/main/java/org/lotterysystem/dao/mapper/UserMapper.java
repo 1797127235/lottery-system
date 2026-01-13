@@ -32,6 +32,9 @@ public interface UserMapper {
     @Select("select * from \"user\" where identity = #{identity}")
     java.util.List<UserDo> selectByIdentity(@Param("identity") String identity);
 
+    @Select("select * from \"user\" where id = #{id}")
+    UserDo selectById(@Param("id") Long id);
+
     @Select({
             "<script>",
             "select id from \"user\"",

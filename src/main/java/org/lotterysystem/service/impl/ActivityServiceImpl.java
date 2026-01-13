@@ -114,7 +114,9 @@ public class ActivityServiceImpl implements ActivityService {
 
         return new CreateActivityDTO(activityDO.getId());
     }
-
+    /*
+        查询当前页活动列表
+     */
     @Override
     public PageListDTO<ActivityDTO> findActivityList(PageParam pageParam) {
         // 获取总量
@@ -135,7 +137,9 @@ public class ActivityServiceImpl implements ActivityService {
 
         return new PageListDTO<>(total, activityDTOList);
     }
-
+    /*
+        查活动详情
+     */
     @Override
     public ActivityDetailDTO getActivityDetail(Long activityId) {
         if(null == activityId){
@@ -164,6 +168,26 @@ public class ActivityServiceImpl implements ActivityService {
         cacheActivity(detailDTO);
 
         return detailDTO;
+    }
+
+    @Override
+    public void cacheActivity(Long activityId) {
+        if(null == activityId){
+            log.error("activityId is null");
+            throw new ServiceException(ServiceErrorCodeConstants.CACHE_ACTIVITY_ID_IS_EMPTY);
+        }
+
+        ActivityDO activityDO = activityMapper.selectById(activityId);
+        if (activityDO == null) {
+            log.warn("activity not found, id={}", activityId);
+            return;
+        }
+
+        List<ActivityPrizeDO> activityPrizeDOList = activityPrizeMapper.selectByActivityId(activityId);
+        List<ActivityUserDO> activityUserDOList = activityUserMapper.selectByActivityId(activityId);
+
+        ActivityDetailDTO detailDTO = convertToActivityDetailDTO(activityDO, activityPrizeDOList, activityUserDOList);
+        cacheActivity(detailDTO);
     }
 
     private ActivityDetailDTO convertToActivityDetailDTO(ActivityDO activityDO,

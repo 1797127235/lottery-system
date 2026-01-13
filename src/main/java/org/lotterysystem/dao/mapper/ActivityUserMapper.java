@@ -39,4 +39,37 @@ public interface ActivityUserMapper {
             @Result(column = "gmt_modified", property = "gmtModified")
     })
     List<ActivityUserDO> selectByActivityId(@Param("activityId") Long activityId);
+
+    /**
+     * 批量更新活动下指定用户状态
+     */
+    @Update({
+            "<script>",
+            "update activity_user",
+            "set status = #{status}, gmt_modified = now()",
+            "where activity_id = #{activityId}",
+            "and user_id in",
+            "<foreach collection='userIds' item='id' open='(' separator=',' close=')'>",
+            "#{id}",
+            "</foreach>",
+            "</script>"
+    })
+    int updateStatus(@Param("activityId") Long activityId,
+                     @Param("userIds") List<Long> userIds,
+                     @Param("status") String status);
+
+    @Select({
+            "<script>",
+            "select id, activity_id, user_id, user_name, status, gmt_create, gmt_modified",
+            "from activity_user",
+            "where activity_id = #{activityId}",
+            "and user_id in",
+            "<foreach collection='userIds' item='id' open='(' separator=',' close=')'>",
+            "#{id}",
+            "</foreach>",
+            "</script>"
+    })
+    @ResultMap("activityUserResultMap")
+    List<ActivityUserDO> batchSelectByAUIds(@Param("activityId") Long activityId,
+                                            @Param("userIds") List<Long> userIds);
 }

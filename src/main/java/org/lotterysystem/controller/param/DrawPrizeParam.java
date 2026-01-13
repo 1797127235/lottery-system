@@ -39,6 +39,9 @@ public class DrawPrizeParam {
     @Valid
     private List<Winner> winnerList;
 
+    /*
+        中奖者列表
+     */
     @Data
     public static class Winner{
         /*

@@ -40,4 +40,14 @@ public interface ActivityMapper {
     })
     List<ActivityDO> selectActivityList(@Param("offset") int offset, @Param("pageSize") int pageSize);
 
+    /**
+     * 更新活动状态
+     */
+    @Update({
+            "update activity",
+            "set status = #{status}, gmt_modified = now()",
+            "where id = #{activityId}"
+    })
+    int updateStatus(@Param("activityId") Long activityId, @Param("status") String status);
+
 }

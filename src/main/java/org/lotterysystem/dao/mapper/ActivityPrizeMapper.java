@@ -40,4 +40,34 @@ public interface ActivityPrizeMapper {
             @Result(column = "gmt_modified", property = "gmtModified")
     })
     List<ActivityPrizeDO> selectByActivityId(@Param("activityId") Long activityId);
+
+    @Select({
+            "select id, activity_id, prize_id, prize_amount, prize_tiers, status, gmt_create, gmt_modified",
+            "from activity_prize",
+            "where activity_id = #{activityId} and prize_id = #{prizeId}"
+    })
+    @ResultMap("activityPrizeResultMap")
+    ActivityPrizeDO selectByAPId(@Param("activityId") Long activityId, @Param("prizeId") Long prizeId);
+
+    /**
+     * 统计活动下指定状态的奖品数量
+     */
+    @Select({
+            "select count(1)",
+            "from activity_prize",
+            "where activity_id = #{activityId} and status = #{status}"
+    })
+    int countPrizeByStatus(@Param("activityId") Long activityId, @Param("status") String status);
+
+    /**
+     * 更新指定活动下某奖品的状态
+     */
+    @Update({
+            "update activity_prize",
+            "set status = #{status}, gmt_modified = now()",
+            "where activity_id = #{activityId} and prize_id = #{prizeId}"
+    })
+    int updateStatus(@Param("activityId") Long activityId,
+                     @Param("prizeId") Long prizeId,
+                     @Param("status") String status);
 }

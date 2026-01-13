@@ -8,4 +8,14 @@ public interface DrawPrizeService {
      */
     void drawPrize(DrawPrizeParam param);
 
+    /*
+        校验抽奖请求
+     */
+    void checkDrawPrizeParam(DrawPrizeParam param);
+
+    /*
+        保存中奖者名单
+     */
+    void saveWinnerRecords(DrawPrizeParam param);
+
 }

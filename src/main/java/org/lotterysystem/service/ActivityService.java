@@ -23,4 +23,9 @@ public interface ActivityService {
         获取活动详细属性
      */
     ActivityDetailDTO getActivityDetail(Long activityId);
+
+    /*
+        缓存活动详细信息(读取表数据 再缓存)
+     */
+    void cacheActivity(Long activityId);
 }
